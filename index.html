@@ -1,0 +1,2487 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fotolibro Studio Pro v29</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --panel-border: #334155;
+            --accent-color: #6366f1;
+            --accent-hover: #4f46e5;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --book-page-bg: #ffffff;
+            --preview-width: 500px;
+            --preview-height: 353px;
+            --print-width: 297mm;
+            --print-height: 210mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            padding: 0.6rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--panel-border);
+            z-index: 300;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .border-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #0f172a;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .border-toolbar label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.82rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+
+        .btn:hover { background-color: var(--accent-hover); }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--panel-border);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover { background-color: var(--panel-border); }
+
+        .btn-warning {
+            background-color: #f59e0b;
+            color: #0f172a;
+            border: none;
+            padding: 0.45rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.78rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-warning:hover { background-color: #d97706; color: #fff; }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            background-color: var(--panel-bg);
+            min-width: 190px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            z-index: 500;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dropdown-item {
+            color: var(--text-color);
+            padding: 0.6rem 0.9rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background 0.15s;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--panel-border);
+            color: #fff;
+        }
+
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* LEFT SIDEBAR */
+        .sidebar-left {
+            width: 330px;
+            background-color: var(--panel-bg);
+            border-right: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            gap: 0.8rem;
+        }
+
+        .sidebar-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .reconnect-box {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px dashed #f59e0b;
+            border-radius: 8px;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .reconnect-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .reconnect-desc {
+            font-size: 0.7rem;
+            color: #cbd5e1;
+            line-height: 1.3;
+        }
+
+        .tabs-header {
+            display: flex;
+            gap: 0.4rem;
+            background: #0f172a;
+            padding: 0.25rem;
+            border-radius: 6px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.4rem;
+            font-size: 0.75rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .tab-content { display: none; flex-direction: column; gap: 0.8rem; flex: 1; overflow: hidden; }
+        .tab-content.active { display: flex; }
+
+        .upload-area {
+            border: 2px dashed var(--panel-border);
+            border-radius: 8px;
+            padding: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            background-color: rgba(255, 255, 255, 0.02);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .upload-area input { display: none; }
+
+        .photo-grid-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 0.2rem;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.6rem;
+        }
+
+        .photo-item {
+            background-color: #0f172a;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            cursor: grab;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px;
+            aspect-ratio: 1 / 1;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .photo-item.used {
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.08);
+        }
+
+        .photo-item img {
+            max-width: 100%;
+            max-height: 75%;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .photo-item .photo-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        .used-badge {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background-color: #10b981;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 5;
+        }
+
+        .photo-item.used .used-badge { display: block; }
+
+        .photo-remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background-color: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            z-index: 5;
+            transition: transform 0.15s;
+        }
+
+        .photo-remove-btn:hover {
+            transform: scale(1.15);
+            background-color: #ef4444;
+        }
+
+        .preset-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .pill-btn {
+            background: #0f172a;
+            border: 1px solid var(--panel-border);
+            color: var(--text-color);
+            padding: 0.3rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pill-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+
+        /* CENTER CANVAS AREA */
+        .canvas-container {
+            flex: 1;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
+            gap: 2rem;
+        }
+
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .page-wrapper.active-page .single-page-canvas,
+        .page-wrapper.active-page .book-spread {
+            outline: 3px solid var(--accent-color);
+        }
+
+        .page-header-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .cover-header-width { width: var(--preview-width); }
+        .spread-header-width { width: calc(var(--preview-width) * 2 + 2px); }
+
+        .single-page-canvas {
+            width: var(--preview-width);
+            height: var(--preview-height);
+            background-color: var(--book-page-bg);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+            transition: background-color 0.2s ease;
+        }
+
+        .book-spread {
+            display: flex;
+            background-color: #64748b;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            overflow: visible;
+            width: calc(var(--preview-width) * 2 + 2px);
+            height: var(--preview-height);
+            position: relative;
+        }
+
+        .book-page {
+            width: var(--preview-width);
+            height: var(--preview-height);
+            background-color: var(--book-page-bg);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset -10px 0 20px -10px rgba(0, 0, 0, 0.15);
+            box-sizing: border-box;
+            transition: background-color 0.2s ease;
+        }
+
+        .book-page.right {
+            box-shadow: inset 10px 0 20px -10px rgba(0, 0, 0, 0.15);
+        }
+
+        .page-divider {
+            width: 2px;
+            height: 100%;
+            background-color: #475569;
+            z-index: 100;
+        }
+
+        .page-running-header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-family: 'Segoe UI', sans-serif;
+            color: #475569;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            pointer-events: none;
+            z-index: 150;
+            display: block;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .page-number {
+            position: absolute;
+            bottom: 12px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            pointer-events: none;
+            z-index: 150;
+        }
+        .left .page-number { left: 20px; }
+        .right .page-number { right: 20px; }
+
+        .page-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .add-frame-page-btn {
+            flex: 1;
+            background-color: var(--panel-bg);
+            border: 1px dashed var(--panel-border);
+            color: var(--text-color);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+        }
+
+        .add-frame-page-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .page-svg-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 4;
+            box-sizing: border-box;
+        }
+
+        .frame-box {
+            position: absolute;
+            top: 18%;
+            left: 10%;
+            width: 48%;
+            height: 55%;
+            padding: 6px;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            cursor: move;
+            transform-origin: center center;
+            box-sizing: border-box;
+            z-index: 10;
+            transition: border-radius 0.2s ease;
+        }
+
+        .frame-box.selected { outline: 2px solid var(--accent-color); }
+
+        .image-container {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            background-color: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            border-radius: inherit;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            cursor: grab;
+        }
+
+        .image-container:active { cursor: grabbing; }
+
+        .image-container img {
+            position: absolute;
+            transform-origin: center center;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .unlinked-photo-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            text-align: center;
+            color: #d97706;
+            gap: 4px;
+        }
+
+        .unlinked-photo-placeholder span {
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .comment-input {
+            width: 100%;
+            margin-top: 4px;
+            border: none;
+            border-bottom: 1px solid #cbd5e1;
+            font-size: 0.75rem;
+            text-align: center;
+            outline: none;
+            background: transparent;
+            color: #334155;
+            padding: 2px 0;
+        }
+
+        .text-box {
+            position: absolute;
+            top: 18%;
+            left: 10%;
+            width: 50%;
+            min-height: 40px;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px dashed #94a3b8;
+            border-radius: 4px;
+            cursor: move;
+            z-index: 20;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-box.selected {
+            outline: 2px solid var(--accent-color);
+            background: #ffffff;
+        }
+
+        .text-box textarea {
+            width: 100%;
+            height: 100%;
+            min-height: 30px;
+            border: none;
+            background: transparent;
+            outline: none;
+            color: #0f172a;
+            text-align: center;
+            font-weight: 600;
+            resize: none;
+            font-family: inherit;
+            line-height: 1.25;
+            overflow: hidden;
+            padding: 0;
+            user-select: text;
+        }
+
+        /* MANIGLIE DI RIDIMENSIONAMENTO PER TUTTI GLI ANGOLI E LATI */
+        .frame-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: var(--accent-color);
+            border: 2px solid white;
+            border-radius: 50%;
+            display: none;
+            z-index: 200;
+        }
+
+        .frame-box.selected .frame-handle, .text-box.selected .frame-handle { display: block; }
+
+        /* 4 Angoli */
+        .handle-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+        .handle-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+        .handle-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+        .handle-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+        /* 4 Lati */
+        .handle-n { top: -6px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+        .handle-s { bottom: -6px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+        .handle-w { top: 50%; left: -6px; transform: translateY(-50%); cursor: ew-resize; }
+        .handle-e { top: 50%; right: -6px; transform: translateY(-50%); cursor: ew-resize; }
+
+        /* Rotazione */
+        .handle-rotate {
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10b981;
+            cursor: grab;
+        }
+
+        .frame-delete-btn {
+            position: absolute;
+            top: -9px;
+            right: -9px;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 10px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 205;
+        }
+
+        .frame-box.selected .frame-delete-btn, .text-box.selected .frame-delete-btn { display: flex; }
+
+        /* RIGHT SIDEBAR */
+        .sidebar-right {
+            width: 320px;
+            background-color: var(--panel-bg);
+            border-left: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            gap: 1.1rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 60px);
+        }
+
+        .sidebar-right::-webkit-scrollbar { width: 8px; }
+        .sidebar-right::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
+        .sidebar-right::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .sidebar-right::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .control-input, select {
+            background: #0f172a;
+            border: 1px solid var(--panel-border);
+            color: #fff;
+            padding: 0.45rem 0.65rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            outline: none;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .color-picker-input {
+            width: 42px;
+            height: 35px;
+            border: 1px solid var(--panel-border);
+            background: #0f172a;
+            border-radius: 6px;
+            cursor: pointer;
+            padding: 2px;
+        }
+
+        .btn-sm {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            color: #fff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .btn-danger-sm {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        /* STAMPA E EXPORT PDF CORRETTI */
+        @media print {
+            @page {
+                size: var(--print-width) var(--print-height);
+                margin: 0 !important;
+            }
+
+            html, body {
+                width: 100% !important;
+                height: auto !important;
+                background: white !important;
+                color: black !important;
+                overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            header, .sidebar-left, .sidebar-right, .add-spread-btn-container, 
+            .page-header-title, .page-actions, .frame-handle, .frame-delete-btn, 
+            .page-divider, .page-number {
+                display: none !important;
+            }
+
+            .workspace, .canvas-container {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
+                background: white !important;
+                width: 100% !important;
+            }
+
+            .page-wrapper {
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
+            }
+
+            .single-page-canvas {
+                width: var(--print-width) !important;
+                height: var(--print-height) !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                position: relative !important;
+            }
+
+            .book-spread {
+                display: block !important;
+                width: auto !important;
+                height: auto !important;
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+
+            .book-page {
+                display: block !important;
+                width: var(--print-width) !important;
+                height: var(--print-height) !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                position: relative !important;
+            }
+
+            .frame-box, .text-box {
+                box-shadow: none !important;
+                outline: none !important;
+                border: none !important;
+                background: transparent !important;
+            }
+
+            .text-box textarea {
+                border: none !important;
+            }
+
+            .comment-input {
+                border-bottom: none !important;
+            }
+
+            .comment-input:placeholder-shown {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="logo">
+            📷 <span>Fotolibro Studio Pro v29 (Progetti Leggeri)</span>
+        </div>
+
+        <div class="header-actions">
+            <label class="btn btn-secondary">
+                📂 Apri Progetto
+                <input type="file" id="loadProjectInput" accept=".json" style="display:none;" onchange="loadProjectFile(event)">
+            </label>
+
+            <div class="dropdown">
+                <button class="btn btn-secondary" onclick="toggleSaveMenu(event)">
+                    💾 Salva Progetto ▾
+                </button>
+                <div class="dropdown-menu" id="saveDropdownMenu">
+                    <button class="dropdown-item" onclick="saveProjectFile(false)">
+                        💾 Salva
+                    </button>
+                    <button class="dropdown-item" onclick="saveProjectFile(true)">
+                        📁 Salva con Nome...
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn" onclick="window.print()">🖨️ Stampa / Esporta PDF</button>
+
+            <!-- BORDER CONTROLS BAR -->
+            <div class="border-toolbar">
+                <label for="pageBorderSelect">🖼️ Stile Cornice:</label>
+                <select id="pageBorderSelect" style="width: 190px;" onchange="updatePageBorders()">
+                    <option value="none">1. Nessuna Cornice</option>
+                    <option value="classic-black">2. Linea Classica</option>
+                    <option value="double-line">3. Doppia Linea Elegante</option>
+                    <option value="triple-line">4. Tripla Linea Reale</option>
+                    <option value="dashed-modern">5. Tratteggiata Moderna</option>
+                    <option value="dotted-chic">6. Punteggiata Chic</option>
+                    <option value="thick-frame">7. Bordo Spesso Passepartout</option>
+                    <option value="vintage-corners">8. Angoli Decorativi Vintage 📜</option>
+                    <option value="floral-baroque">9. Disegno Floreale Barocco 🌿</option>
+                    <option value="art-deco">10. Art Déco Geometrico 💎</option>
+                    <option value="film-strip">11. Pellicola Cinematografica 🎞️</option>
+                    <option value="polaroid-border">12. Stile Polaroid Vintage 📷</option>
+                    <option value="shadow-3d">13. Ombra 3D & Profondità ✨</option>
+                    <option value="grunge-distressed">14. Grunge & Tratto Artistico 🎨</option>
+                    <option value="minimal-dots">15. Angoli a Pallini Minimal ⚪</option>
+                    <option value="gold-ornate">16. Cornice Dorata Barocca 🏛️</option>
+                </select>
+
+                <label for="borderColorPicker" style="margin-left: 2px;">🎨 Colore:</label>
+                <input type="color" id="borderColorPicker" class="color-picker-input" value="#1e293b" onchange="updatePageBorders()">
+
+                <label for="borderApplyTarget" style="margin-left: 2px;">Applica a:</label>
+                <select id="borderApplyTarget" style="width: 120px;" onchange="updatePageBorders()">
+                    <option value="all">Tutte le Pagine</option>
+                    <option value="cover">Solo Copertina</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <!-- LEFT SIDEBAR -->
+        <div class="sidebar-left">
+            <div class="sidebar-title-row">
+                <div class="sidebar-title">Libreria Immagini</div>
+                <button class="btn-danger-sm" onclick="clearUnusedPhotos()" title="Rimuovi foto non usate nel libro">🗑️ Pulisci</button>
+            </div>
+
+            <!-- RECONNECT / RELOCATE FOLDER BOX -->
+            <div class="reconnect-box">
+                <div class="reconnect-title">📂 Ricollega / Trova Cartella Foto</div>
+                <div class="reconnect-desc">Se riapri un progetto salvato nei giorni scorsi, seleziona la cartella con le foto sul tuo PC per ricollegarle in un click.</div>
+                <label class="btn-warning" style="justify-content: center; margin-top: 2px;">
+                    🔍 Indica Cartella Foto PC...
+                    <input type="file" id="reconnectFolderInput" multiple webkitdirectory directory accept="image/*" style="display:none;" onchange="handleFolderReconnect(event)">
+                </label>
+            </div>
+
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchSidebarTab('local')">📁 File Locale / Cartella</button>
+                <button class="tab-btn" onclick="switchSidebarTab('web')">🌐 Foto da Web / URL</button>
+            </div>
+
+            <div id="tab-local" class="tab-content active">
+                <label class="upload-area">
+                    <span>➕ Carica / Seleziona Foto dal PC</span>
+                    <input type="file" id="fileInput" multiple accept="image/*" onchange="handleFileUpload(event)">
+                </label>
+
+                <div class="photo-grid-container">
+                    <div class="photo-grid" id="photoGallery"></div>
+                </div>
+            </div>
+
+            <div id="tab-web" class="tab-content">
+                <div class="form-group">
+                    <label for="webUrlInput">Incolla URL Immagine Web</label>
+                    <input type="text" id="webUrlInput" class="control-input" placeholder="https://images.unsplash.com/..." style="font-size: 0.75rem;">
+                </div>
+                <button class="btn" style="justify-content: center;" onclick="addWebPhotoFromInput()">➕ Aggiungi Foto da Web</button>
+
+                <hr style="border:0; border-top:1px solid var(--panel-border); margin: 0.4rem 0;">
+
+                <div class="sidebar-title" style="font-size: 0.7rem;">Sample Rapidi Unsplash (Test):</div>
+                <div class="preset-pills">
+                    <button class="pill-btn" onclick="addSampleWebPhoto('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600', 'Paesaggio di Montagna')">🏔️ Montagna</button>
+                    <button class="pill-btn" onclick="addSampleWebPhoto('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600', 'Spiaggia Tropicale')">🏖️ Spiaggia</button>
+                    <button class="pill-btn" onclick="addSampleWebPhoto('https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600', 'Interno Design Moderno')">🏠 Interior</button>
+                    <button class="pill-btn" onclick="addSampleWebPhoto('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600', 'Foresta nella Nebbia')">🌲 Foresta</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER CANVAS AREA -->
+        <div class="canvas-container" id="canvasContainer">
+            <div class="add-spread-btn-container" style="margin-bottom: 2rem;">
+                <button class="btn" onclick="addNewSpread()">➕ Aggiungi Nuova Doppia Pagina in Fondo</button>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <div class="sidebar-right">
+
+            <!-- CONFIGURAZIONE LAYER / SOVRAPPOSIZIONE FOTO -->
+            <div class="form-group" style="background: rgba(245, 158, 11, 0.1); padding: 0.85rem; border-radius: 6px; border: 1px solid #f59e0b;">
+                <label style="color: #fbbf24; font-weight:700;">📚 Livello e Sovrapposizione Foto</label>
+                <span id="layerInspectStatus" style="font-size: 0.72rem; color: var(--text-muted); font-style: italic;">
+                    Seleziona una foto o testo per cambiarne l'ordine di sovrapposizione
+                </span>
+
+                <div class="form-row" style="margin-top:6px; flex-wrap: wrap;">
+                    <button class="btn-sm" id="btnBringToFront" onclick="changeSelectedZIndex('front')" disabled style="flex:1;">⬆️ Primo Piano</button>
+                    <button class="btn-sm" id="btnBringForward" onclick="changeSelectedZIndex('forward')" disabled style="flex:1;">🔼 Avanti</button>
+                </div>
+                <div class="form-row" style="margin-top:4px; flex-wrap: wrap;">
+                    <button class="btn-sm" id="btnSendBackward" onclick="changeSelectedZIndex('backward')" disabled style="flex:1;">🔽 Indietro</button>
+                    <button class="btn-sm" id="btnSendToBack" onclick="changeSelectedZIndex('back')" disabled style="flex:1;">⬇️ Sfondo</button>
+                </div>
+            </div>
+
+            <!-- CONFIGURAZIONE INTESTAZIONE PAGINE (NOME FOTOLIBRO IN ALTO) -->
+            <div class="form-group" style="background: rgba(99, 102, 241, 0.08); padding: 0.85rem; border-radius: 6px; border: 1px solid var(--accent-color);">
+                <label for="projectTitle" style="color: var(--accent-color); font-weight:700;">📖 Nome Fotolibro (In Alto sulle Pagine)</label>
+                
+                <input type="text" id="projectTitle" class="control-input" value="Nome del Fotolibro" placeholder="Nome visibile in alto sulle pagine..." oninput="updateRunningHeaders()" style="margin-top: 4px;">
+
+                <div class="form-group" style="margin-top: 8px;">
+                    <label>Font Scritta in Alto</label>
+                    <select id="headerFontSelect" onchange="updateRunningHeaders()">
+                        <option value="'Segoe UI', sans-serif" selected>Segoe UI (Moderno)</option>
+                        <option value="'Georgia', serif">Georgia (Classico / Elegante)</option>
+                        <option value="'Courier New', monospace">Courier New (Macchina da scrivere)</option>
+                        <option value="'Comic Sans MS', cursive">Comic Sans (Informale)</option>
+                        <option value="'Arial', sans-serif">Arial (Pulito)</option>
+                        <option value="'Times New Roman', serif">Times New Roman (Tradizionale)</option>
+                        <option value="'Impact', sans-serif">Impact (Forte / Titolo)</option>
+                        <option value="'Trebuchet MS', sans-serif">Trebuchet MS (Dinamico)</option>
+                        <option value="'Palatino Linotype', serif">Palatino (Raffinato)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top: 6px;">
+                    <label>Altezza / Dimensione Font</label>
+                    <div class="form-row">
+                        <input type="range" id="headerSizeRange" min="10" max="36" value="14" style="flex:1;" oninput="updateRunningHeaders()">
+                        <span id="headerSizeLabel" style="font-size:0.82rem; width:35px;">14px</span>
+                    </div>
+                </div>
+
+                <button id="toggleHeaderBtn" class="btn" style="width:100%; margin-top:10px; justify-content:center;" onclick="toggleRunningHeaders()">
+                    ✅ Mostra Nome Fotolibro in Alto
+                </button>
+            </div>
+
+            <!-- INDIVIDUAL SELECTED TEXT INSPECTOR -->
+            <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--panel-border);">
+                <label style="color: var(--accent-color); font-weight:700;">✏️ Personalizza Testo Selezionato</label>
+                <span id="selectedTextStatus" style="font-size: 0.72rem; color: var(--text-muted); font-style: italic;">
+                    Clicca su un testo o titolo per modificarne font e dimensione
+                </span>
+
+                <div class="form-group" style="margin-top:6px;">
+                    <label>Tipo di Font</label>
+                    <select id="activeTextFont" onchange="applyTextChangeToSelected()" disabled>
+                        <option value="'Segoe UI', sans-serif">Segoe UI (Moderno)</option>
+                        <option value="'Georgia', serif">Georgia (Classico / Elegante)</option>
+                        <option value="'Courier New', monospace">Courier New (Macchina da scrivere)</option>
+                        <option value="'Comic Sans MS', cursive">Comic Sans (Informale)</option>
+                        <option value="'Arial', sans-serif">Arial (Pulito)</option>
+                        <option value="'Times New Roman', serif">Times New Roman (Tradizionale)</option>
+                        <option value="'Impact', sans-serif">Impact (Forte / Titolo)</option>
+                        <option value="'Trebuchet MS', sans-serif">Trebuchet MS (Dinamico)</option>
+                        <option value="'Palatino Linotype', serif">Palatino (Raffinato)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-top:6px;">
+                    <label>Altezza / Dimensione Testo</label>
+                    <div class="form-row">
+                        <input type="range" id="activeTextSize" min="10" max="80" value="18" style="flex:1;" oninput="applyTextChangeToSelected()" disabled>
+                        <span id="activeTextSizeLabel" style="font-size:0.82rem; width:35px;">18px</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THEME SELECTION -->
+            <div class="form-group" style="background: rgba(99, 102, 241, 0.08); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--accent-color);">
+                <label style="color: #a5b4fc; font-weight:700;">🎨 Tema Grafico del Libro</label>
+                <select id="bookThemeSelect" onchange="applyBookTheme(this.value)">
+                    <option value="classic">1. Classico Elegante (Bianco & Nero)</option>
+                    <option value="warm-vintage">2. Vintage Caldo (Avorio & Sepia)</option>
+                    <option value="dark-modern">3. Moderno Scuro (Antracite & Grigio)</option>
+                    <option value="pastel-dream">4. Pastello Delicato (Rosa & Crema)</option>
+                    <option value="navy-gold">5. Blu Notte & Oro</option>
+                    <option value="minimal-clean">6. Minimal Svedese</option>
+                </select>
+            </div>
+
+            <!-- Page Size -->
+            <div class="form-group">
+                <label for="pageSize">Formato Pagina di Stampa</label>
+                <select id="pageSize" onchange="updatePageFormat()">
+                    <option value="a3">A3 (29.7 x 42.0 cm)</option>
+                    <option value="a4" selected>A4 (21.0 x 29.7 cm)</option>
+                    <option value="a5">A5 (14.8 x 21.0 cm)</option>
+                    <option value="a6">A6 (10.5 x 14.8 cm)</option>
+                    <option value="square">Quadrato (20.0 x 20.0 cm)</option>
+                </select>
+            </div>
+
+            <!-- Orientation -->
+            <div class="form-group">
+                <label for="pageOrientation">Verso della Pagina</label>
+                <select id="pageOrientation" onchange="updatePageFormat()">
+                    <option value="landscape" selected>Orizzontale (Landscape)</option>
+                    <option value="portrait">Verticale (Portrait)</option>
+                </select>
+            </div>
+
+            <hr style="border:0; border-top:1px solid var(--panel-border);">
+
+            <!-- BACKGROUND COLOR PICKER -->
+            <div class="form-group">
+                <label for="bgColorPicker">Colore Sfondo Pagine del Libro</label>
+                <div class="form-row">
+                    <input type="color" id="bgColorPicker" class="color-picker-input" value="#ffffff" onchange="updatePageBackgroundColor()">
+                    <select id="bgPresetSelect" onchange="applyPresetBgColor(this.value)">
+                        <option value="#ffffff">Bianco Classico</option>
+                        <option value="#18181b">Nero Antracite</option>
+                        <option value="#fdf6e3">Crema / Avorio</option>
+                        <option value="#f1f5f9">Grigio Chiaro Studio</option>
+                        <option value="#1e293b">Blu Notte Elegante</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr style="border:0; border-top:1px solid var(--panel-border);">
+
+            <!-- INSPECTOR FRAME SHAPE & CORNERS -->
+            <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--panel-border);">
+                <label style="color: #38bdf8; font-weight:700;">📐 Forma e Sagoma Riquadro Foto</label>
+                <span id="frameShapeStatus" style="font-size: 0.72rem; color: var(--text-muted); font-style: italic;">
+                    Seleziona un riquadro foto per cambiarne la forma
+                </span>
+
+                <div class="form-group" style="margin-top:6px;">
+                    <label>Stile Sagoma</label>
+                    <select id="frameShapeSelect" onchange="applyFrameShapeToSelected()" disabled>
+                        <option value="4px">Rettangolare (Spigoli Vivi)</option>
+                        <option value="12px">Angoli Arrotondati Lievi</option>
+                        <option value="24px">Angoli Arrotondati Accentutati</option>
+                        <option value="50%">Tondo / Ovale (Circolare)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- INSPECTOR PHOTO ZOOM / POSITION -->
+            <div class="form-group" style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px; border: 1px solid var(--panel-border);">
+                <label style="color: #10b981; font-weight:700;">🔍 Ingrandimento (Zoom Foto)</label>
+                <span id="photoInspectStatus" style="font-size: 0.72rem; color: var(--text-muted); font-style: italic;">
+                    Seleziona una foto per regolare lo zoom
+                </span>
+
+                <div class="form-group" style="margin-top:6px;">
+                    <div class="form-row">
+                        <input type="range" id="photoZoomRange" min="100" max="300" value="100" style="flex:1;" oninput="applyZoomToSelectedPhoto()" disabled>
+                        <span id="photoZoomLabel" style="font-size:0.8rem; width:40px;">100%</span>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-top:4px;">
+                    <button class="btn-sm" id="resetPhotoPosBtn" style="width:100%; justify-content:center;" onclick="resetSelectedPhotoPosition()" disabled>
+                        🔄 Ricentra e Resetta Zoom Foto
+                    </button>
+                </div>
+            </div>
+
+            <!-- FREE TEXT TOOL -->
+            <div class="form-group">
+                <button class="btn btn-secondary" style="width: 100%; justify-content: center;" onclick="addFreeTextBoxToActivePage()">
+                    ➕ Nuova Scritta nella Pagina Attiva
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let photosLibrary = [];
+        let fileMap = new Map(); // Mappa fileName -> ObjectURL per caricamenti istantanei senza Base64
+        let spreadsData = [];
+        let activePageId = 'cover-page-el';
+        let selectedElementId = null;
+        let pageCounter = 0;
+        let isRunningHeaderVisible = true;
+        let projectFileHandle = null;
+
+        const formatDimensions = {
+            a3: { previewW: 620, previewH: 438, printW: '420mm', printH: '297mm' },
+            a4: { previewW: 500, previewH: 353, printW: '297mm', printH: '210mm' },
+            a5: { previewW: 400, previewH: 283, printW: '210mm', printH: '148mm' },
+            a6: { previewW: 320, previewH: 226, printW: '148mm', printH: '105mm' },
+            square: { previewW: 400, previewH: 400, printW: '200mm', printH: '200mm' }
+        };
+
+        const themePresets = {
+            'classic': { bg: '#ffffff', borderStyle: 'classic-black', borderColor: '#1e293b' },
+            'warm-vintage': { bg: '#fdf6e3', borderStyle: 'vintage-corners', borderColor: '#78350f' },
+            'dark-modern': { bg: '#18181b', borderStyle: 'double-line', borderColor: '#e4e4e7' },
+            'pastel-dream': { bg: '#fdf2f8', borderStyle: 'dotted-chic', borderColor: '#f472b6' },
+            'navy-gold': { bg: '#0f172a', borderStyle: 'triple-line', borderColor: '#fbbf24' },
+            'minimal-clean': { bg: '#f8fafc', borderStyle: 'none', borderColor: '#cbd5e1' }
+        };
+
+        window.onload = function() {
+            renderCoverPage();
+            addNewSpread();
+            updatePageFormat();
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dropdown')) {
+                    closeSaveMenu();
+                }
+                if (!e.target.closest('.frame-box') && !e.target.closest('.text-box') && !e.target.closest('.sidebar-left') && !e.target.closest('.sidebar-right') && !e.target.closest('.btn-sm') && !e.target.closest('.header-actions')) {
+                    deselectAllElements();
+                }
+            });
+        };
+
+        function toggleSaveMenu(e) {
+            e.stopPropagation();
+            document.getElementById('saveDropdownMenu').classList.toggle('show');
+        }
+
+        function closeSaveMenu() {
+            document.getElementById('saveDropdownMenu').classList.remove('show');
+        }
+
+        function toggleRunningHeaders() {
+            isRunningHeaderVisible = !isRunningHeaderVisible;
+            const btn = document.getElementById('toggleHeaderBtn');
+            if (isRunningHeaderVisible) {
+                btn.innerHTML = '✅ Mostra Nome Fotolibro in Alto';
+                btn.classList.remove('btn-secondary');
+                btn.classList.add('btn');
+            } else {
+                btn.innerHTML = '❌ Nascondi Nome Fotolibro in Alto';
+                btn.classList.remove('btn');
+                btn.classList.add('btn-secondary');
+            }
+            updateRunningHeaders();
+        }
+
+        function updateRunningHeaders() {
+            const projectTitle = document.getElementById('projectTitle').value || 'Nome del Fotolibro';
+            const font = document.getElementById('headerFontSelect').value;
+            const size = document.getElementById('headerSizeRange').value;
+            document.getElementById('headerSizeLabel').innerText = size + 'px';
+
+            document.querySelectorAll('.page-running-header').forEach(headerEl => {
+                if (isRunningHeaderVisible) {
+                    headerEl.innerText = projectTitle;
+                    headerEl.style.fontFamily = font;
+                    headerEl.style.fontSize = size + 'px';
+                    headerEl.style.display = 'block';
+                } else {
+                    headerEl.style.display = 'none';
+                }
+            });
+        }
+
+        function changeSelectedZIndex(action) {
+            if (!selectedElementId) return;
+            const el = document.getElementById(selectedElementId);
+            if (!el) return;
+
+            const parent = el.parentElement;
+            if (!parent) return;
+
+            const siblings = Array.from(parent.querySelectorAll('.frame-box, .text-box'));
+            if (siblings.length <= 1) return;
+
+            let zArr = siblings.map(s => parseInt(window.getComputedStyle(s).zIndex) || 10);
+            let curZ = parseInt(window.getComputedStyle(el).zIndex) || 10;
+            let minZ = Math.min(...zArr);
+            let maxZ = Math.max(...zArr);
+
+            if (action === 'front') {
+                el.style.zIndex = maxZ + 1;
+            } else if (action === 'back') {
+                el.style.zIndex = Math.max(1, minZ - 1);
+            } else if (action === 'forward') {
+                el.style.zIndex = curZ + 1;
+            } else if (action === 'backward') {
+                el.style.zIndex = Math.max(1, curZ - 1);
+            }
+        }
+
+        function applyBookTheme(themeKey) {
+            const theme = themePresets[themeKey];
+            if (!theme) return;
+
+            document.getElementById('bgColorPicker').value = theme.bg;
+            updatePageBackgroundColor();
+
+            document.getElementById('pageBorderSelect').value = theme.borderStyle;
+            document.getElementById('borderColorPicker').value = theme.borderColor;
+            updatePageBorders();
+        }
+
+        function switchSidebarTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            if (tabName === 'local') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('tab-local').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('tab-web').classList.add('active');
+            }
+        }
+
+        function handleFileUpload(event) {
+            const files = Array.from(event.target.files);
+            if (!files.length) return;
+
+            files.forEach(file => {
+                const objectUrl = URL.createObjectURL(file);
+                const fileName = file.name;
+                fileMap.set(fileName, objectUrl);
+
+                const cleanName = fileName.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+                const id = 'img-' + Date.now() + '-' + Math.floor(Math.random()*10000);
+                
+                // Evita duplicati nella libreria
+                if (!photosLibrary.some(p => p.fileName === fileName)) {
+                    photosLibrary.push({ id: id, name: cleanName, fileName: fileName, src: objectUrl });
+                } else {
+                    const existing = photosLibrary.find(p => p.fileName === fileName);
+                    if (existing) existing.src = objectUrl;
+                }
+            });
+
+            relinkUnlinkedFrames();
+            sortAndRenderGallery();
+        }
+
+        function handleFolderReconnect(event) {
+            const files = Array.from(event.target.files);
+            if (!files.length) return;
+
+            let count = 0;
+            files.forEach(file => {
+                if (file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(file.name)) {
+                    const objectUrl = URL.createObjectURL(file);
+                    const fileName = file.name;
+                    fileMap.set(fileName, objectUrl);
+
+                    const existing = photosLibrary.find(p => p.fileName === fileName);
+                    if (existing) {
+                        existing.src = objectUrl;
+                    } else {
+                        const cleanName = fileName.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+                        const id = 'img-' + Date.now() + '-' + Math.floor(Math.random()*10000);
+                        photosLibrary.push({ id: id, name: cleanName, fileName: fileName, src: objectUrl });
+                    }
+                    count++;
+                }
+            });
+
+            relinkUnlinkedFrames();
+            sortAndRenderGallery();
+            alert(`Ricollegate ${count} immagini dalla cartella indicata!`);
+        }
+
+        function relinkUnlinkedFrames() {
+            document.querySelectorAll('.frame-box').forEach(frameEl => {
+                const fileName = frameEl.dataset.fileName;
+                if (fileName && fileMap.has(fileName)) {
+                    const newSrc = fileMap.get(fileName);
+                    frameEl.dataset.imgSrc = newSrc;
+                    
+                    const container = frameEl.querySelector('.image-container');
+                    const panX = parseFloat(frameEl.dataset.panX || 0);
+                    const panY = parseFloat(frameEl.dataset.panY || 0);
+                    const zoom = parseFloat(frameEl.dataset.zoom || 100);
+
+                    container.innerHTML = `<img src="${newSrc}" style="transform: translate(${panX}px, ${panY}px) scale(${zoom/100}); width:100%; height:100%; object-fit:cover;">`;
+                    makeImagePannable(frameEl);
+                }
+            });
+        }
+
+        function addWebPhotoFromInput() {
+            const url = document.getElementById('webUrlInput').value.trim();
+            if (!url) {
+                alert("Inserisci un URL valido per l'immagine.");
+                return;
+            }
+
+            const id = 'img-' + Date.now() + '-' + Math.floor(Math.random()*10000);
+            photosLibrary.push({ id: id, name: 'Foto da Web', fileName: url, src: url });
+            sortAndRenderGallery();
+            document.getElementById('webUrlInput').value = '';
+        }
+
+        function addSampleWebPhoto(url, caption) {
+            const id = 'img-' + Date.now() + '-' + Math.floor(Math.random()*10000);
+            photosLibrary.push({ id: id, name: caption, fileName: url, src: url });
+            sortAndRenderGallery();
+        }
+
+        function getUsedPhotoSources() {
+            const usedSources = new Set();
+            document.querySelectorAll('.frame-box').forEach(f => {
+                if (f.dataset.fileName) usedSources.add(f.dataset.fileName);
+            });
+            return usedSources;
+        }
+
+        function removePhotoFromLibrary(id, event) {
+            if (event) event.stopPropagation();
+            photosLibrary = photosLibrary.filter(item => item.id !== id);
+            sortAndRenderGallery();
+        }
+
+        function clearUnusedPhotos() {
+            const usedSources = getUsedPhotoSources();
+            const initialCount = photosLibrary.length;
+            photosLibrary = photosLibrary.filter(item => usedSources.has(item.fileName));
+            const removedCount = initialCount - photosLibrary.length;
+            sortAndRenderGallery();
+            alert(`Rimosse ${removedCount} foto non utilizzate dalla libreria.`);
+        }
+
+        function sortAndRenderGallery() {
+            photosLibrary.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+            const gallery = document.getElementById('photoGallery');
+            gallery.innerHTML = '';
+
+            const usedSources = getUsedPhotoSources();
+
+            photosLibrary.forEach(item => {
+                const isUsed = usedSources.has(item.fileName);
+                if (!item.id) item.id = 'img-' + Date.now() + '-' + Math.floor(Math.random()*10000);
+
+                const div = document.createElement('div');
+                div.className = 'photo-item' + (isUsed ? ' used' : '');
+                div.draggable = true;
+
+                const badge = document.createElement('div');
+                badge.className = 'used-badge';
+                badge.innerText = '✓ USATA';
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'photo-remove-btn';
+                removeBtn.innerHTML = '✕';
+                removeBtn.title = 'Rimuovi dalla libreria';
+                removeBtn.onclick = (e) => removePhotoFromLibrary(item.id, e);
+
+                const img = document.createElement('img');
+                img.src = item.src || '';
+                img.alt = item.name;
+                img.title = item.fileName + (isUsed ? ' (Già presente nel fotolibro)' : '');
+
+                const label = document.createElement('div');
+                label.className = 'photo-label';
+                label.innerText = item.fileName || item.name;
+
+                div.appendChild(badge);
+                div.appendChild(removeBtn);
+                div.appendChild(img);
+                div.appendChild(label);
+
+                div.addEventListener('dragstart', (ev) => {
+                    ev.dataTransfer.setData("text/plain", JSON.stringify(item));
+                });
+
+                gallery.appendChild(div);
+            });
+        }
+
+        function updatePageBackgroundColor() {
+            const color = document.getElementById('bgColorPicker').value;
+            document.documentElement.style.setProperty('--book-page-bg', color);
+        }
+
+        function applyPresetBgColor(color) {
+            document.getElementById('bgColorPicker').value = color;
+            updatePageBackgroundColor();
+        }
+
+        function generateSVGFrame(styleKey, color) {
+            if (styleKey === 'none') return '';
+
+            let strokeColor = color || '#1e293b';
+            let svgContent = '';
+
+            if (styleKey === 'classic-black') {
+                svgContent = `<rect x="12" y="12" width="calc(100% - 24px)" height="calc(100% - 24px)" fill="none" stroke="${strokeColor}" stroke-width="4"/>`;
+            } else if (styleKey === 'double-line') {
+                svgContent = `
+                    <rect x="10" y="10" width="calc(100% - 20px)" height="calc(100% - 20px)" fill="none" stroke="${strokeColor}" stroke-width="3"/>
+                    <rect x="18" y="18" width="calc(100% - 36px)" height="calc(100% - 36px)" fill="none" stroke="${strokeColor}" stroke-width="1.5"/>`;
+            } else if (styleKey === 'triple-line') {
+                svgContent = `
+                    <rect x="8" y="8" width="calc(100% - 16px)" height="calc(100% - 16px)" fill="none" stroke="${strokeColor}" stroke-width="3"/>
+                    <rect x="14" y="14" width="calc(100% - 28px)" height="calc(100% - 28px)" fill="none" stroke="${strokeColor}" stroke-width="1"/>
+                    <rect x="18" y="18" width="calc(100% - 36px)" height="calc(100% - 36px)" fill="none" stroke="${strokeColor}" stroke-width="2"/>`;
+            } else if (styleKey === 'dashed-modern') {
+                svgContent = `<rect x="12" y="12" width="calc(100% - 24px)" height="calc(100% - 24px)" fill="none" stroke="${strokeColor}" stroke-width="3" stroke-dasharray="10 6"/>`;
+            } else if (styleKey === 'dotted-chic') {
+                svgContent = `<rect x="12" y="12" width="calc(100% - 24px)" height="calc(100% - 24px)" fill="none" stroke="${strokeColor}" stroke-width="4" stroke-dasharray="2 8" stroke-linecap="round"/>`;
+            } else if (styleKey === 'thick-frame') {
+                svgContent = `<rect x="15" y="15" width="calc(100% - 30px)" height="calc(100% - 30px)" fill="none" stroke="${strokeColor}" stroke-width="16"/>`;
+            } else if (styleKey === 'vintage-corners') {
+                svgContent = `
+                    <rect x="16" y="16" width="calc(100% - 32px)" height="calc(100% - 32px)" fill="none" stroke="${strokeColor}" stroke-width="2"/>
+                    <path d="M 6,32 L 32,6 M 6,6 L 6,36 M 6,6 L 36,6" fill="none" stroke="${strokeColor}" stroke-width="3"/>
+                    <path d="M calc(100% - 6px),32 L calc(100% - 32px),6 M calc(100% - 6px),6 L calc(100% - 6px),36 M calc(100% - 6px),6 L calc(100% - 36px),6" fill="none" stroke="${strokeColor}" stroke-width="3"/>
+                    <path d="M 6,calc(100% - 32px) L 32,calc(100% - 6px) M 6,calc(100% - 6px) L 6,calc(100% - 36px) M 6,calc(100% - 6px) L 36,calc(100% - 6px)" fill="none" stroke="${strokeColor}" stroke-width="3"/>
+                    <path d="M calc(100% - 6px),calc(100% - 32px) L calc(100% - 32px),calc(100% - 6px) M calc(100% - 6px),calc(100% - 6px) L calc(100% - 6px),calc(100% - 36px) M calc(100% - 6px),calc(100% - 6px) L calc(100% - 36px),calc(100% - 6px)" fill="none" stroke="${strokeColor}" stroke-width="3"/>`;
+            } else if (styleKey === 'film-strip') {
+                svgContent = `
+                    <rect x="10" y="10" width="calc(100% - 20px)" height="calc(100% - 20px)" fill="none" stroke="${strokeColor}" stroke-width="12"/>
+                    <rect x="2" y="2" width="calc(100% - 4px)" height="calc(100% - 4px)" fill="none" stroke="#000" stroke-width="4"/>
+                    <circle cx="16" cy="18" r="3" fill="#fff"/><circle cx="16" cy="45" r="3" fill="#fff"/><circle cx="16" cy="72" r="3" fill="#fff"/>
+                    <circle cx="calc(100% - 16px)" cy="18" r="3" fill="#fff"/><circle cx="calc(100% - 16px)" cy="45" r="3" fill="#fff"/><circle cx="calc(100% - 16px)" cy="72" r="3" fill="#fff"/>`;
+            } else if (styleKey === 'polaroid-border') {
+                svgContent = `
+                    <rect x="8" y="8" width="calc(100% - 16px)" height="calc(100% - 16px)" fill="none" stroke="${strokeColor}" stroke-width="2"/>
+                    <rect x="14" y="14" width="calc(100% - 28px)" height="calc(100% - 48px)" fill="none" stroke="${strokeColor}" stroke-width="1.5"/>`;
+            } else if (styleKey === 'shadow-3d') {
+                svgContent = `
+                    <rect x="12" y="12" width="calc(100% - 24px)" height="calc(100% - 24px)" fill="none" stroke="${strokeColor}" stroke-width="2"/>
+                    <line x1="16" y1="calc(100% - 8px)" x2="calc(100% - 8px)" y2="calc(100% - 8px)" stroke="${strokeColor}" stroke-width="4" stroke-opacity="0.3"/>
+                    <line x1="calc(100% - 8px)" y1="16" x2="calc(100% - 8px)" y2="calc(100% - 8px)" stroke="${strokeColor}" stroke-width="4" stroke-opacity="0.3"/>`;
+            } else if (styleKey === 'grunge-distressed') {
+                svgContent = `
+                    <rect x="10" y="10" width="calc(100% - 20px)" height="calc(100% - 20px)" fill="none" stroke="${strokeColor}" stroke-width="3" stroke-dasharray="15 4 2 4 8 3"/>
+                    <rect x="14" y="14" width="calc(100% - 28px)" height="calc(100% - 28px)" fill="none" stroke="${strokeColor}" stroke-width="1" stroke-dasharray="6 8 12 4"/>`;
+            } else if (styleKey === 'minimal-dots') {
+                svgContent = `
+                    <rect x="14" y="14" width="calc(100% - 28px)" height="calc(100% - 28px)" fill="none" stroke="${strokeColor}" stroke-width="1"/>
+                    <circle cx="14" cy="14" r="5" fill="${strokeColor}"/>
+                    <circle cx="calc(100% - 14px)" cy="14" r="5" fill="${strokeColor}"/>
+                    <circle cx="14" cy="calc(100% - 14px)" r="5" fill="${strokeColor}"/>
+                    <circle cx="calc(100% - 14px)" cy="calc(100% - 14px)" r="5" fill="${strokeColor}"/>`;
+            } else if (styleKey === 'gold-ornate') {
+                svgContent = `
+                    <rect x="10" y="10" width="calc(100% - 20px)" height="calc(100% - 20px)" fill="none" stroke="${strokeColor}" stroke-width="4"/>
+                    <rect x="16" y="16" width="calc(100% - 32px)" height="calc(100% - 32px)" fill="none" stroke="${strokeColor}" stroke-width="1"/>
+                    <polygon points="10,10 25,10 10,25" fill="${strokeColor}"/>
+                    <polygon points="calc(100%-10px),10 calc(100%-25px),10 calc(100%-10px),25" fill="${strokeColor}"/>
+                    <polygon points="10,calc(100%-10px) 25,calc(100%-10px) 10,calc(100%-25px)" fill="${strokeColor}"/>
+                    <polygon points="calc(100%-10px),calc(100%-10px) calc(100%-25px),calc(100%-10px) calc(100%-10px),calc(100%-25px)" fill="${strokeColor}"/>`;
+            } else {
+                svgContent = `<rect x="10" y="10" width="calc(100% - 20px)" height="calc(100% - 20px)" fill="none" stroke="${strokeColor}" stroke-width="3"/>`;
+            }
+
+            return `<svg class="page-svg-border" xmlns="http://www.w3.org/2000/svg">${svgContent}</svg>`;
+        }
+
+        function updatePageBorders() {
+            const styleKey = document.getElementById('pageBorderSelect').value;
+            const color = document.getElementById('borderColorPicker').value;
+            const target = document.getElementById('borderApplyTarget').value;
+
+            const coverElem = document.getElementById('cover-page-el');
+            const allPages = document.querySelectorAll('.book-page');
+
+            document.querySelectorAll('.page-svg-border').forEach(svg => svg.remove());
+
+            const svgHtml = generateSVGFrame(styleKey, color);
+            if (!svgHtml) return;
+
+            if (target === 'cover') {
+                if (coverElem) coverElem.insertAdjacentHTML('beforeend', svgHtml);
+            } else {
+                if (coverElem) coverElem.insertAdjacentHTML('beforeend', svgHtml);
+                allPages.forEach(p => p.insertAdjacentHTML('beforeend', svgHtml));
+            }
+        }
+
+        function updatePageFormat() {
+            const size = document.getElementById('pageSize').value;
+            const orientation = document.getElementById('pageOrientation').value;
+
+            let dim = formatDimensions[size] || formatDimensions.a4;
+            let previewW = dim.previewW;
+            let previewH = dim.previewH;
+            let printW = dim.printW;
+            let printH = dim.printH;
+
+            if (orientation === 'portrait' && size !== 'square') {
+                previewW = dim.previewH;
+                previewH = dim.previewW;
+                printW = dim.printH;
+                printH = dim.printW;
+            }
+
+            document.documentElement.style.setProperty('--preview-width', previewW + 'px');
+            document.documentElement.style.setProperty('--preview-height', previewH + 'px');
+            document.documentElement.style.setProperty('--print-width', printW);
+            document.documentElement.style.setProperty('--print-height', printH);
+        }
+
+        function renderCoverPage() {
+            const container = document.getElementById('canvasContainer');
+            const coverWrapper = document.createElement('div');
+            coverWrapper.className = 'page-wrapper active-page';
+            coverWrapper.id = 'cover-wrapper';
+
+            coverWrapper.innerHTML = `
+                <div class="page-header-title cover-header-width">
+                    <span>📘 Copertina (Foglio 1 del Progetto)</span>
+                </div>
+                <div class="single-page-canvas" id="cover-page-el" onclick="setActivePage('cover-page-el')">
+                    <!-- Cover Content -->
+                </div>
+                <div class="page-actions cover-header-width">
+                    <button class="add-frame-page-btn" onclick="event.stopPropagation(); addFrameToPage('cover-page-el')">
+                        🖼️ + Foto Copertina
+                    </button>
+                    <button class="add-frame-page-btn" onclick="event.stopPropagation(); addFreeTextBoxToPage('cover-page-el')">
+                        ✏️ + Scritta / Testo
+                    </button>
+                </div>
+            `;
+
+            container.insertBefore(coverWrapper, container.firstChild);
+            addFreeTextBoxToPage('cover-page-el', 'Titolo del Fotolibro', 28, "'Georgia', serif", 20, 20, 60, 20);
+            updatePageBorders();
+        }
+
+        function addNewSpread(relativeToSpreadId = null, position = 'bottom') {
+            pageCounter += 2;
+            const pLeftNum = pageCounter - 1;
+            const pRightNum = pageCounter;
+
+            const spreadId = 'spread-' + Date.now() + '-' + Math.floor(Math.random()*100);
+            const pageLeftId = 'page-' + pLeftNum;
+            const pageRightId = 'page-' + pRightNum;
+
+            const spreadObj = {
+                id: spreadId,
+                pageLeft: { id: pageLeftId, num: pLeftNum },
+                pageRight: { id: pageRightId, num: pRightNum }
+            };
+
+            if (relativeToSpreadId && position !== 'bottom') {
+                const idx = spreadsData.findIndex(s => s.id === relativeToSpreadId);
+                if (idx !== -1) {
+                    const insertIdx = position === 'before' ? idx : idx + 1;
+                    spreadsData.splice(insertIdx, 0, spreadObj);
+                    renderSpread(spreadObj, relativeToSpreadId, position);
+                    renumberPages();
+                    return;
+                }
+            }
+
+            spreadsData.push(spreadObj);
+            renderSpread(spreadObj, null, 'bottom');
+            renumberPages();
+        }
+
+        function renderSpread(spreadObj, targetSpreadId = null, position = 'bottom') {
+            const container = document.getElementById('canvasContainer');
+            const addBtnContainer = container.querySelector('.add-spread-btn-container');
+
+            const spreadWrapper = document.createElement('div');
+            spreadWrapper.className = 'page-wrapper';
+            spreadWrapper.id = spreadObj.id;
+
+            spreadWrapper.innerHTML = `
+                <div class="page-header-title spread-header-width">
+                    <div class="spread-controls-left">
+                        <button class="btn-sm" onclick="event.stopPropagation(); addNewSpread('${spreadObj.id}', 'before')">➕ Pagina Prima</button>
+                        <button class="btn-sm" onclick="event.stopPropagation(); addNewSpread('${spreadObj.id}', 'after')">➕ Pagina Dopo</button>
+                    </div>
+                    <span class="spread-title-text">Pagine Interne ${spreadObj.pageLeft.num} - ${spreadObj.pageRight.num}</span>
+                    <button class="btn-danger-sm" onclick="event.stopPropagation(); removeSpread('${spreadObj.id}')">Elimina Doppia Pagina</button>
+                </div>
+                <div class="book-spread">
+                    <div class="book-page left" id="${spreadObj.pageLeft.id}" onclick="setActivePage('${spreadObj.pageLeft.id}')">
+                        <span class="page-running-header"></span>
+                        <span class="page-number">Pagina ${spreadObj.pageLeft.num}</span>
+                    </div>
+                    <div class="page-divider"></div>
+                    <div class="book-page right" id="${spreadObj.pageRight.id}" onclick="setActivePage('${spreadObj.pageRight.id}')">
+                        <span class="page-running-header"></span>
+                        <span class="page-number">Pagina ${spreadObj.pageRight.num}</span>
+                    </div>
+                </div>
+                <div class="page-actions spread-header-width">
+                    <button class="add-frame-page-btn" onclick="event.stopPropagation(); addFrameToPage('${spreadObj.pageLeft.id}')">
+                        🖼️ + Riquadro Foto (SX)
+                    </button>
+                    <button class="add-frame-page-btn" onclick="event.stopPropagation(); addFreeTextBoxToPage('${spreadObj.pageLeft.id}')">
+                        ✏️ + Testo (SX)
+                    </button>
+                    <button class="add-frame-page-btn" onclick="event.stopPropagation(); addFrameToPage('${spreadObj.pageRight.id}')">
+                        🖼️ + Riquadro Foto (DX)
+                    </button>
+                    <button class="add-frame-page-btn" onclick="event.stopPropagation(); addFreeTextBoxToPage('${spreadObj.pageRight.id}')">
+                        ✏️ + Testo (DX)
+                    </button>
+                </div>
+            `;
+
+            if (targetSpreadId) {
+                const targetEl = document.getElementById(targetSpreadId);
+                if (targetEl) {
+                    if (position === 'before') container.insertBefore(spreadWrapper, targetEl);
+                    else container.insertBefore(spreadWrapper, targetEl.nextSibling);
+                }
+            } else {
+                container.insertBefore(spreadWrapper, addBtnContainer);
+            }
+
+            if (spreadsData.length === 1 && spreadObj.pageLeft.num === 1) {
+                addFrameToPage(spreadObj.pageLeft.id, 10, 18, 50, 60);
+            }
+
+            updatePageBorders();
+            updateRunningHeaders();
+        }
+
+        function setActivePage(pageId) {
+            activePageId = pageId;
+            document.querySelectorAll('.page-wrapper').forEach(pw => {
+                if (pw.querySelector(`#${pageId}`)) pw.classList.add('active-page');
+                else pw.classList.remove('active-page');
+            });
+        }
+
+        function renumberPages() {
+            let num = 1;
+            document.querySelectorAll('.page-wrapper').forEach(sw => {
+                if (sw.id === 'cover-wrapper') return;
+                const leftNum = num++;
+                const rightNum = num++;
+                const titleSpan = sw.querySelector('.spread-title-text');
+                if (titleSpan) titleSpan.innerText = `Pagine Interne ${leftNum} - ${rightNum}`;
+
+                const leftPageNum = sw.querySelector('.book-page.left .page-number');
+                if (leftPageNum) leftPageNum.innerText = `Pagina ${leftNum}`;
+
+                const rightPageNum = sw.querySelector('.book-page.right .page-number');
+                if (rightPageNum) rightPageNum.innerText = `Pagina ${rightNum}`;
+            });
+            pageCounter = num - 1;
+        }
+
+        function removeSpread(spreadId) {
+            if (spreadsData.length <= 1) {
+                alert("Devi mantenere almeno una doppia pagina nel fotolibro.");
+                return;
+            }
+            if (confirm("Sei sicuro di voler eliminare questa doppia pagina?")) {
+                spreadsData = spreadsData.filter(s => s.id !== spreadId);
+                const elem = document.getElementById(spreadId);
+                if (elem) elem.remove();
+                renumberPages();
+                sortAndRenderGallery();
+            }
+        }
+
+        function addFreeTextBoxToActivePage() {
+            if (!activePageId) activePageId = 'cover-page-el';
+            addFreeTextBoxToPage(activePageId, 'Nuova Scritta...', 18, "'Segoe UI', sans-serif", 20, 20, 60, 20);
+        }
+
+        function addFreeTextBoxToPage(pageId, text = 'Testo...', fontSize = 18, fontFam = "'Segoe UI', sans-serif", pctX = 20, pctY = 20, pctW = 60, pctH = 20, rot = 0, zIdx = 20) {
+            const pageElem = document.getElementById(pageId);
+            if (!pageElem) return;
+
+            const textId = 'text-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+            const box = document.createElement('div');
+            box.className = 'text-box';
+            box.id = textId;
+            box.style.left = pctX + '%';
+            box.style.top = pctY + '%';
+            box.style.width = pctW + '%';
+            if (pctH) box.style.height = pctH + '%';
+            box.style.transform = `rotate(${rot}deg)`;
+            box.style.zIndex = zIdx;
+            box.dataset.rotation = rot;
+
+            box.innerHTML = `
+                <button class="frame-delete-btn" onclick="deleteElement(event, '${textId}')">✕</button>
+                <div class="frame-handle handle-rotate" onmousedown="initRotate(event, '${textId}')"></div>
+                <textarea onclick="event.stopPropagation(); selectElement('${textId}');" oninput="autoResizeTextarea(this)" style="font-size:${fontSize}px; font-family:${fontFam};">${text}</textarea>
+                
+                <!-- 8 MANIGLIE DI RIDIMENSIONAMENTO -->
+                <div class="frame-handle handle-nw" onmousedown="initResizeDirection(event, '${textId}', 'nw')"></div>
+                <div class="frame-handle handle-ne" onmousedown="initResizeDirection(event, '${textId}', 'ne')"></div>
+                <div class="frame-handle handle-sw" onmousedown="initResizeDirection(event, '${textId}', 'sw')"></div>
+                <div class="frame-handle handle-se" onmousedown="initResizeDirection(event, '${textId}', 'se')"></div>
+                <div class="frame-handle handle-n" onmousedown="initResizeDirection(event, '${textId}', 'n')"></div>
+                <div class="frame-handle handle-s" onmousedown="initResizeDirection(event, '${textId}', 's')"></div>
+                <div class="frame-handle handle-w" onmousedown="initResizeDirection(event, '${textId}', 'w')"></div>
+                <div class="frame-handle handle-e" onmousedown="initResizeDirection(event, '${textId}', 'e')"></div>
+            `;
+
+            box.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectElement(textId);
+                setActivePage(pageId);
+            });
+
+            makeDraggablePct(box);
+            pageElem.appendChild(box);
+
+            const ta = box.querySelector('textarea');
+            autoResizeTextarea(ta);
+
+            selectElement(textId);
+        }
+
+        function autoResizeTextarea(ta) {
+            if (!ta) return;
+            ta.style.height = 'auto';
+            ta.style.height = ta.scrollHeight + 'px';
+        }
+
+        function addFrameToPage(pageId, pctX = 10, pctY = 18, pctW = 48, pctH = 55, imgSrc = '', comment = '', rot = 0, zoom = 100, panX = 0, panY = 0, borderRadius = '4px', zIdx = 10, fileName = '') {
+            const pageElem = document.getElementById(pageId);
+            if (!pageElem) return;
+
+            const frameId = 'frame-' + Date.now() + '-' + Math.floor(Math.random()*1000);
+
+            const frame = document.createElement('div');
+            frame.className = 'frame-box';
+            frame.id = frameId;
+            frame.style.left = pctX + '%';
+            frame.style.top = pctY + '%';
+            frame.style.width = pctW + '%';
+            frame.style.height = pctH + '%';
+            frame.style.transform = `rotate(${rot}deg)`;
+            frame.style.borderRadius = borderRadius;
+            frame.style.zIndex = zIdx;
+            frame.dataset.rotation = rot;
+            frame.dataset.borderRadius = borderRadius;
+            frame.dataset.fileName = fileName;
+
+            frame.dataset.zoom = zoom;
+            frame.dataset.panX = panX;
+            frame.dataset.panY = panY;
+
+            // Risolviamo la sorgente foto se disponibile
+            let activeSrc = imgSrc;
+            if (fileName && fileMap.has(fileName)) {
+                activeSrc = fileMap.get(fileName);
+            }
+            frame.dataset.imgSrc = activeSrc;
+
+            let imageHtml = '<span>Trascina foto qui</span>';
+            if (activeSrc) {
+                imageHtml = `<img src="${activeSrc}" style="transform: translate(${panX}px, ${panY}px) scale(${zoom/100}); width:100%; height:100%; object-fit:cover;">`;
+            } else if (fileName) {
+                imageHtml = `
+                    <div class="unlinked-photo-placeholder">
+                        <span>⚠️ Foto non ricollegata</span>
+                        <div style="font-size:0.65rem; word-break:break-all;">${fileName}</div>
+                    </div>`;
+            }
+
+            frame.innerHTML = `
+                <button class="frame-delete-btn" onclick="deleteElement(event, '${frameId}')">✕</button>
+                <div class="frame-handle handle-rotate" onmousedown="initRotate(event, '${frameId}')"></div>
+                <div class="image-container" ondrop="dropPhoto(event)" ondragover="allowDrop(event)">
+                    ${imageHtml}
+                </div>
+                <input type="text" class="comment-input" value="${comment}" placeholder="Scrivi un commento..." onclick="event.stopPropagation(); selectElement('${frameId}');">
+                
+                <!-- 8 MANIGLIE DI RIDIMENSIONAMENTO PER TUTTI GLI ANGOLI E LATI -->
+                <div class="frame-handle handle-nw" onmousedown="initResizeDirection(event, '${frameId}', 'nw')"></div>
+                <div class="frame-handle handle-ne" onmousedown="initResizeDirection(event, '${frameId}', 'ne')"></div>
+                <div class="frame-handle handle-sw" onmousedown="initResizeDirection(event, '${frameId}', 'sw')"></div>
+                <div class="frame-handle handle-se" onmousedown="initResizeDirection(event, '${frameId}', 'se')"></div>
+                <div class="frame-handle handle-n" onmousedown="initResizeDirection(event, '${frameId}', 'n')"></div>
+                <div class="frame-handle handle-s" onmousedown="initResizeDirection(event, '${frameId}', 's')"></div>
+                <div class="frame-handle handle-w" onmousedown="initResizeDirection(event, '${frameId}', 'w')"></div>
+                <div class="frame-handle handle-e" onmousedown="initResizeDirection(event, '${frameId}', 'e')"></div>
+            `;
+
+            frame.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectElement(frameId);
+                setActivePage(pageId);
+            });
+
+            makeDraggablePct(frame);
+            if (activeSrc) makeImagePannable(frame);
+
+            pageElem.appendChild(frame);
+            selectElement(frameId);
+            sortAndRenderGallery();
+        }
+
+        function applyFrameShapeToSelected() {
+            if (!selectedElementId) return;
+            const frame = document.getElementById(selectedElementId);
+            if (!frame || !frame.classList.contains('frame-box')) return;
+
+            const shapeVal = document.getElementById('frameShapeSelect').value;
+            frame.style.borderRadius = shapeVal;
+            frame.dataset.borderRadius = shapeVal;
+        }
+
+        /* TRASCINAMENTO / PANNING FOTO ALL'INTERNO DEL RIQUADRO */
+        function makeImagePannable(frame) {
+            const container = frame.querySelector('.image-container');
+
+            container.onmousedown = (e) => {
+                const img = container.querySelector('img');
+                if (!img) return;
+
+                e.stopPropagation();
+                let isPanning = true;
+
+                let curPanX = parseFloat(frame.dataset.panX || 0);
+                let curPanY = parseFloat(frame.dataset.panY || 0);
+
+                let startX = e.clientX - curPanX;
+                let startY = e.clientY - curPanY;
+
+                const onMouseMove = (me) => {
+                    if (!isPanning) return;
+                    let newPanX = me.clientX - startX;
+                    let newPanY = me.clientY - startY;
+
+                    frame.dataset.panX = newPanX;
+                    frame.dataset.panY = newPanY;
+
+                    const zoom = parseFloat(frame.dataset.zoom || 100) / 100;
+                    img.style.transform = `translate(${newPanX}px, ${newPanY}px) scale(${zoom})`;
+                };
+
+                const onMouseUp = () => {
+                    isPanning = false;
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            };
+        }
+
+        function allowDrop(ev) { ev.preventDefault(); }
+        function dropPhoto(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const rawData = ev.dataTransfer.getData("text/plain");
+
+            try {
+                const item = JSON.parse(rawData);
+                if (item && item.src) {
+                    const container = ev.currentTarget;
+                    const frame = container.closest('.frame-box');
+
+                    frame.dataset.panX = 0;
+                    frame.dataset.panY = 0;
+                    frame.dataset.zoom = 100;
+                    frame.dataset.fileName = item.fileName || item.name;
+                    frame.dataset.imgSrc = item.src;
+
+                    container.innerHTML = `<img src="${item.src}" style="width:100%; height:100%; object-fit:cover; transform: translate(0px, 0px) scale(1);">`;
+                    makeImagePannable(frame);
+                    sortAndRenderGallery();
+                }
+            } catch (err) {
+                if (rawData) {
+                    const container = ev.currentTarget;
+                    const frame = container.closest('.frame-box');
+                    frame.dataset.imgSrc = rawData;
+                    container.innerHTML = `<img src="${rawData}" style="width:100%; height:100%; object-fit:cover;">`;
+                    makeImagePannable(frame);
+                    sortAndRenderGallery();
+                }
+            }
+        }
+
+        function selectElement(id) {
+            deselectAllElements();
+            selectedElementId = id;
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            el.classList.add('selected');
+
+            document.getElementById('btnBringToFront').disabled = false;
+            document.getElementById('btnBringForward').disabled = false;
+            document.getElementById('btnSendBackward').disabled = false;
+            document.getElementById('btnSendToBack').disabled = false;
+            document.getElementById('layerInspectStatus').innerText = "Regola l'ordine di sovrapposizione dell'elemento:";
+
+            const fontSelect = document.getElementById('activeTextFont');
+            const sizeSlider = document.getElementById('activeTextSize');
+            const statusText = document.getElementById('selectedTextStatus');
+
+            fontSelect.disabled = false;
+            sizeSlider.disabled = false;
+            statusText.innerText = "Modifica font e dimensione del testo selezionato:";
+
+            let textEl = el.querySelector('textarea, input[type="text"]');
+            if (textEl) {
+                const currentFont = textEl.style.fontFamily || "'Segoe UI', sans-serif";
+                const currentSize = parseInt(textEl.style.fontSize) || 18;
+
+                fontSelect.value = currentFont.replace(/"/g, "'");
+                sizeSlider.value = currentSize;
+                document.getElementById('activeTextSizeLabel').innerText = currentSize + 'px';
+            }
+
+            if (el.classList.contains('frame-box')) {
+                document.getElementById('frameShapeSelect').disabled = false;
+                document.getElementById('frameShapeStatus').innerText = "Personalizza gli angoli e la forma della foto:";
+                const currentRadius = el.dataset.borderRadius || '4px';
+                document.getElementById('frameShapeSelect').value = currentRadius;
+
+                if (el.querySelector('.image-container img')) {
+                    document.getElementById('photoZoomRange').disabled = false;
+                    document.getElementById('resetPhotoPosBtn').disabled = false;
+                    document.getElementById('photoInspectStatus').innerText = "Regola lo zoom della foto selezionata:";
+
+                    const currentZoom = parseInt(el.dataset.zoom || 100);
+                    document.getElementById('photoZoomRange').value = currentZoom;
+                    document.getElementById('photoZoomLabel').innerText = currentZoom + '%';
+                }
+            }
+        }
+
+        function deselectAllElements() {
+            document.querySelectorAll('.frame-box, .text-box').forEach(f => f.classList.remove('selected'));
+            selectedElementId = null;
+
+            document.getElementById('btnBringToFront').disabled = true;
+            document.getElementById('btnBringForward').disabled = true;
+            document.getElementById('btnSendBackward').disabled = true;
+            document.getElementById('btnSendToBack').disabled = true;
+            document.getElementById('layerInspectStatus').innerText = "Seleziona una foto o testo per cambiarne l'ordine di sovrapposizione";
+
+            document.getElementById('activeTextFont').disabled = true;
+            document.getElementById('activeTextSize').disabled = true;
+            document.getElementById('selectedTextStatus').innerText = "Clicca su un testo o titolo per modificarne font e dimensione";
+
+            document.getElementById('frameShapeSelect').disabled = true;
+            document.getElementById('frameShapeStatus').innerText = "Seleziona un riquadro foto per cambiarne la forma";
+
+            document.getElementById('photoZoomRange').disabled = true;
+            document.getElementById('resetPhotoPosBtn').disabled = true;
+            document.getElementById('photoInspectStatus').innerText = "Seleziona una foto per regolare lo zoom";
+        }
+
+        function applyZoomToSelectedPhoto() {
+            if (!selectedElementId) return;
+            const frame = document.getElementById(selectedElementId);
+            if (!frame || !frame.classList.contains('frame-box')) return;
+
+            const img = frame.querySelector('.image-container img');
+            if (!img) return;
+
+            const zoomVal = document.getElementById('photoZoomRange').value;
+            document.getElementById('photoZoomLabel').innerText = zoomVal + '%';
+
+            frame.dataset.zoom = zoomVal;
+            const panX = parseFloat(frame.dataset.panX || 0);
+            const panY = parseFloat(frame.dataset.panY || 0);
+
+            img.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomVal / 100})`;
+        }
+
+        function resetSelectedPhotoPosition() {
+            if (!selectedElementId) return;
+            const frame = document.getElementById(selectedElementId);
+            if (!frame || !frame.classList.contains('frame-box')) return;
+
+            const img = frame.querySelector('.image-container img');
+            if (!img) return;
+
+            frame.dataset.panX = 0;
+            frame.dataset.panY = 0;
+            frame.dataset.zoom = 100;
+
+            document.getElementById('photoZoomRange').value = 100;
+            document.getElementById('photoZoomLabel').innerText = '100%';
+
+            img.style.transform = `translate(0px, 0px) scale(1)`;
+        }
+
+        function applyTextChangeToSelected() {
+            if (!selectedElementId) return;
+
+            const el = document.getElementById(selectedElementId);
+            if (!el) return;
+
+            const font = document.getElementById('activeTextFont').value;
+            const size = document.getElementById('activeTextSize').value;
+            document.getElementById('activeTextSizeLabel').innerText = size + 'px';
+
+            const textEl = el.querySelector('textarea, input[type="text"]');
+            if (textEl) {
+                textEl.style.fontFamily = font;
+                textEl.style.fontSize = size + 'px';
+                if (textEl.tagName === 'TEXTAREA') autoResizeTextarea(textEl);
+            }
+        }
+
+        function deleteElement(e, id) {
+            e.stopPropagation();
+            const el = document.getElementById(id);
+            if (el) el.remove();
+            deselectAllElements();
+            sortAndRenderGallery();
+        }
+
+        function makeDraggablePct(element) {
+            let startX = 0, startY = 0;
+            element.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                if (e.target.classList.contains('frame-handle') || e.target.classList.contains('comment-input') || e.target.classList.contains('frame-delete-btn') || e.target.closest('.image-container') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    return;
+                }
+                e = e || window.event;
+                e.preventDefault();
+                startX = e.clientX;
+                startY = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+                selectElement(element.id);
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                const parent = element.parentElement;
+                const parentW = parent.clientWidth;
+                const parentH = parent.clientHeight;
+
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                startX = e.clientX;
+                startY = e.clientY;
+
+                const curLeft = (element.offsetLeft / parentW) * 100;
+                const curTop = (element.offsetTop / parentH) * 100;
+
+                const dPctX = (dx / parentW) * 100;
+                const dPctY = (dy / parentH) * 100;
+
+                element.style.left = (curLeft + dPctX) + "%";
+                element.style.top = (curTop + dPctY) + "%";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        /* RIDIMENSIONAMENTO COMPLETO DA QUALSIASI ANGOLO / LATO (NW, NE, SW, SE, N, S, W, E) */
+        function initResizeDirection(e, elemId, dir) {
+            e.stopPropagation();
+            e.preventDefault();
+            const elem = document.getElementById(elemId);
+            if (!elem) return;
+
+            const parent = elem.parentElement;
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const startW = elem.clientWidth;
+            const startH = elem.clientHeight;
+            const startLeft = elem.offsetLeft;
+            const startTop = elem.offsetTop;
+
+            function doDrag(me) {
+                const parentW = parent.clientWidth;
+                const parentH = parent.clientHeight;
+                const dx = me.clientX - startX;
+                const dy = me.clientY - startY;
+
+                let newW = startW;
+                let newH = startH;
+                let newLeft = startLeft;
+                let newTop = startTop;
+
+                if (dir.includes('e')) {
+                    newW = startW + dx;
+                } else if (dir.includes('w')) {
+                    newW = startW - dx;
+                    newLeft = startLeft + dx;
+                }
+
+                if (dir.includes('s')) {
+                    newH = startH + dy;
+                } else if (dir.includes('n')) {
+                    newH = startH - dy;
+                    newTop = startTop + dy;
+                }
+
+                if (newW > 40) {
+                    elem.style.width = ((newW / parentW) * 100) + '%';
+                    if (dir.includes('w')) elem.style.left = ((newLeft / parentW) * 100) + '%';
+                }
+                if (newH > 25) {
+                    elem.style.height = ((newH / parentH) * 100) + '%';
+                    if (dir.includes('n')) elem.style.top = ((newTop / parentH) * 100) + '%';
+                }
+
+                const ta = elem.querySelector('textarea');
+                if (ta) autoResizeTextarea(ta);
+            }
+
+            function stopDrag() {
+                document.removeEventListener('mousemove', doDrag);
+                document.removeEventListener('mouseup', stopDrag);
+            }
+
+            document.addEventListener('mousemove', doDrag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function initRotate(e, elementId) {
+            e.stopPropagation();
+            e.preventDefault();
+            const element = document.getElementById(elementId);
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            function doRotate(e) {
+                const radians = Math.atan2(e.clientX - centerX, -(e.clientY - centerY));
+                let degrees = Math.round(radians * (180 / Math.PI));
+                element.style.transform = `rotate(${degrees}deg)`;
+                element.dataset.rotation = degrees;
+            }
+
+            function stopRotate() {
+                document.removeEventListener('mousemove', doRotate);
+                document.removeEventListener('mouseup', stopRotate);
+            }
+
+            document.addEventListener('mousemove', doRotate);
+            document.addEventListener('mouseup', stopRotate);
+        }
+
+        function collectProjectData() {
+            const projectTitle = document.getElementById('projectTitle').value || 'Nome del Fotolibro';
+            const headerFont = document.getElementById('headerFontSelect').value;
+            const headerSize = document.getElementById('headerSizeRange').value;
+            const bookTheme = document.getElementById('bookThemeSelect').value;
+            const pageSize = document.getElementById('pageSize').value;
+            const pageOrientation = document.getElementById('pageOrientation').value;
+            const bgColor = document.getElementById('bgColorPicker').value;
+            const borderStyle = document.getElementById('pageBorderSelect').value;
+            const borderColor = document.getElementById('borderColorPicker').value;
+            const borderTarget = document.getElementById('borderApplyTarget').value;
+
+            const pagesData = [];
+
+            document.querySelectorAll('.book-page, .single-page-canvas').forEach(pageEl => {
+                const pageId = pageEl.id;
+                const frames = [];
+                const textBoxes = [];
+
+                pageEl.querySelectorAll('.frame-box').forEach(frameEl => {
+                    const commentInput = frameEl.querySelector('.comment-input');
+                    const fileName = frameEl.dataset.fileName || '';
+                    const imgSrc = frameEl.dataset.imgSrc || '';
+
+                    frames.push({
+                        pctX: parseFloat(frameEl.style.left) || 10,
+                        pctY: parseFloat(frameEl.style.top) || 18,
+                        pctW: parseFloat(frameEl.style.width) || 48,
+                        pctH: parseFloat(frameEl.style.height) || 55,
+                        rotation: parseInt(frameEl.dataset.rotation) || 0,
+                        zoom: parseFloat(frameEl.dataset.zoom) || 100,
+                        panX: parseFloat(frameEl.dataset.panX) || 0,
+                        panY: parseFloat(frameEl.dataset.panY) || 0,
+                        borderRadius: frameEl.dataset.borderRadius || '4px',
+                        zIndex: parseInt(frameEl.style.zIndex) || 10,
+                        fileName: fileName,
+                        imgSrc: imgSrc.startsWith('http') ? imgSrc : '', // Se è un URL Web lo manteniamo, se è blob salviamo solo il fileName!
+                        comment: commentInput ? commentInput.value : ''
+                    });
+                });
+
+                pageEl.querySelectorAll('.text-box').forEach(tbEl => {
+                    const textEl = tbEl.querySelector('textarea, input');
+                    textBoxes.push({
+                        pctX: parseFloat(tbEl.style.left) || 15,
+                        pctY: parseFloat(tbEl.style.top) || 15,
+                        pctW: parseFloat(tbEl.style.width) || 50,
+                        pctH: parseFloat(tbEl.style.height) || 20,
+                        rotation: parseInt(tbEl.dataset.rotation) || 0,
+                        zIndex: parseInt(tbEl.style.zIndex) || 20,
+                        text: textEl ? textEl.value : '',
+                        fontFam: textEl ? textEl.style.fontFamily : '',
+                        fontSize: textEl ? parseInt(textEl.style.fontSize) || 18 : 18
+                    });
+                });
+
+                pagesData.push({ pageId, frames, textBoxes });
+            });
+
+            // Salviamo la libreria solo con i riferimenti leggeri (fileName e URL web)
+            const cleanLibrary = photosLibrary.map(item => ({
+                id: item.id,
+                name: item.name,
+                fileName: item.fileName || item.name,
+                webSrc: item.src && item.src.startsWith('http') ? item.src : ''
+            }));
+
+            return {
+                title: projectTitle,
+                headerFont: headerFont,
+                headerSize: headerSize,
+                isRunningHeaderVisible: isRunningHeaderVisible,
+                bookTheme: bookTheme,
+                pageSize: pageSize,
+                pageOrientation: pageOrientation,
+                bgColor: bgColor,
+                borderStyle: borderStyle,
+                borderColor: borderColor,
+                borderTarget: borderTarget,
+                photosLibrary: cleanLibrary,
+                spreadsCount: spreadsData.length,
+                pagesData: pagesData
+            };
+        }
+
+        async function saveProjectFile(forceSaveAs = false) {
+            closeSaveMenu();
+            try {
+                const dataToSave = collectProjectData();
+                const jsonStr = JSON.stringify(dataToSave, null, 2);
+                const projectTitle = dataToSave.title || 'Fotolibro';
+                const suggestedName = `${projectTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_progetto.json`;
+
+                if ('showSaveFilePicker' in window) {
+                    try {
+                        const opts = {
+                            suggestedName: suggestedName,
+                            types: [{
+                                description: 'Progetti Fotolibro Studio (.json)',
+                                accept: { 'application/json': ['.json'] }
+                            }]
+                        };
+                        const handle = await window.showSaveFilePicker(opts);
+                        const writable = await handle.createWritable();
+                        await writable.write(jsonStr);
+                        await writable.close();
+                        alert("Progetto salvato con successo sul tuo PC! (File ultra-leggero)");
+                        return;
+                    } catch (err) {
+                        if (err.name === 'AbortError') return;
+                        console.warn("File System Access API non riuscita, uso il download classico:", err);
+                    }
+                }
+
+                const blob = new Blob([jsonStr], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = suggestedName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (err) {
+                alert("Errore durante il salvataggio del progetto: " + err.message);
+                console.error(err);
+            }
+        }
+
+        function loadProjectFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    document.getElementById('canvasContainer').innerHTML = `
+                        <div class="add-spread-btn-container" style="margin-bottom:2rem;">
+                            <button class="btn" onclick="addNewSpread()">➕ Aggiungi Nuova Doppia Pagina in Fondo</button>
+                        </div>`;
+                    document.getElementById('photoGallery').innerHTML = '';
+                    spreadsData = [];
+                    photosLibrary = [];
+                    pageCounter = 0;
+                    projectFileHandle = null;
+
+                    if (data.title) document.getElementById('projectTitle').value = data.title;
+                    if (data.headerFont) document.getElementById('headerFontSelect').value = data.headerFont;
+                    if (data.headerSize) {
+                        document.getElementById('headerSizeRange').value = data.headerSize;
+                        document.getElementById('headerSizeLabel').innerText = data.headerSize + 'px';
+                    }
+
+                    if (data.isRunningHeaderVisible !== undefined) {
+                        isRunningHeaderVisible = data.isRunningHeaderVisible;
+                        const btn = document.getElementById('toggleHeaderBtn');
+                        if (isRunningHeaderVisible) {
+                            btn.innerHTML = '✅ Mostra Nome Fotolibro in Alto';
+                            btn.classList.remove('btn-secondary');
+                            btn.classList.add('btn');
+                        } else {
+                            btn.innerHTML = '❌ Nascondi Nome Fotolibro in Alto';
+                            btn.classList.remove('btn');
+                            btn.classList.add('btn-secondary');
+                        }
+                    }
+                    if (data.bookTheme) document.getElementById('bookThemeSelect').value = data.bookTheme;
+                    if (data.pageSize) document.getElementById('pageSize').value = data.pageSize;
+                    if (data.pageOrientation) document.getElementById('pageOrientation').value = data.pageOrientation;
+
+                    if (data.bgColor) {
+                        document.getElementById('bgColorPicker').value = data.bgColor;
+                        updatePageBackgroundColor();
+                    }
+
+                    if (data.borderStyle) document.getElementById('pageBorderSelect').value = data.borderStyle;
+                    if (data.borderColor) document.getElementById('borderColorPicker').value = data.borderColor;
+                    if (data.borderTarget) document.getElementById('borderApplyTarget').value = data.borderTarget;
+
+                    updatePageFormat();
+                    renderCoverPage();
+
+                    if (data.photosLibrary && Array.isArray(data.photosLibrary)) {
+                        data.photosLibrary.forEach(item => {
+                            const fileName = item.fileName || item.name;
+                            const src = item.webSrc || (fileMap.has(fileName) ? fileMap.get(fileName) : '');
+                            photosLibrary.push({
+                                id: item.id || ('img-' + Date.now() + '-' + Math.floor(Math.random()*10000)),
+                                name: item.name || fileName,
+                                fileName: fileName,
+                                src: src
+                            });
+                        });
+                    }
+
+                    const totalSpreads = data.spreadsCount || Math.ceil((data.pagesData ? data.pagesData.length - 1 : 2) / 2);
+                    for (let i = 0; i < totalSpreads; i++) {
+                        addNewSpread();
+                    }
+
+                    if (data.pagesData && Array.isArray(data.pagesData)) {
+                        data.pagesData.forEach(pData => {
+                            pData.frames.forEach(f => {
+                                const fName = f.fileName || '';
+                                const fSrc = f.imgSrc || (fileMap.has(fName) ? fileMap.get(fName) : '');
+                                addFrameToPage(pData.pageId, f.pctX, f.pctY, f.pctW, f.pctH, fSrc, f.comment, f.rotation, f.zoom || 100, f.panX || 0, f.panY || 0, f.borderRadius || '4px', f.zIndex || 10, fName);
+                            });
+                            if (pData.textBoxes) {
+                                pData.textBoxes.forEach(tb => {
+                                    addFreeTextBoxToPage(pData.pageId, tb.text, tb.fontSize, tb.fontFam, tb.pctX, tb.pctY, tb.pctW || 50, tb.pctH || 20, tb.rotation, tb.zIndex || 20);
+                                });
+                            }
+                        });
+                    }
+
+                    updatePageBorders();
+                    updateRunningHeaders();
+                    sortAndRenderGallery();
+                    
+                    alert("Progetto caricato con successo! Se qualche foto locale del PC appare non collegata, clicca su 'Indica Cartella Foto PC...' nella barra a sinistra per ricollegarle subito.");
+                } catch (err) {
+                    alert("Errore nel caricamento del file di progetto.");
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
