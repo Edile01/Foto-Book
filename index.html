@@ -651,13 +651,34 @@
         /* MANIGLIE DI RIDIMENSIONAMENTO PER TUTTI GLI ANGOLI E LATI */
         .frame-handle {
             position: absolute;
-            width: 12px;
-            height: 12px;
+            width: 26px;
+            height: 26px;
             background-color: var(--accent-color);
-            border: 2px solid white;
+            border: 3px solid white;
             border-radius: 50%;
             display: none;
             z-index: 200;
+            touch-action: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+
+        /* Offset adeguato per maniglie più grandi da 26px (meta = 13px) */
+        .handle-nw { top: -13px; left: -13px; cursor: nwse-resize; }
+        .handle-ne { top: -13px; right: -13px; cursor: nesw-resize; }
+        .handle-sw { bottom: -13px; left: -13px; cursor: nesw-resize; }
+        .handle-se { bottom: -13px; right: -13px; cursor: nwse-resize; }
+
+        .handle-n { top: -13px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+        .handle-s { bottom: -13px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+        .handle-w { top: 50%; left: -13px; transform: translateY(-50%); cursor: ew-resize; }
+        .handle-e { top: 50%; right: -13px; transform: translateY(-50%); cursor: ew-resize; }
+
+        .handle-rotate {
+            top: -34px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10b981;
+            cursor: grab;
         }
 
         .frame-box.selected .frame-handle, .text-box.selected .frame-handle { display: block; }
@@ -1793,18 +1814,18 @@
 
             box.innerHTML = `
                 <button class="frame-delete-btn" onclick="deleteElement(event, '${textId}')">✕</button>
-                <div class="frame-handle handle-rotate" onmousedown="initRotate(event, '${textId}')"></div>
+                <div class="frame-handle handle-rotate" onmousedown="initRotate(event, '${textId}')" ontouchstart="initRotate(event, '${textId}')"></div>
                 <textarea onclick="event.stopPropagation(); selectElement('${textId}');" oninput="autoResizeTextarea(this)" style="font-size:${fontSize}px; font-family:${fontFam};">${text}</textarea>
                 
                 <!-- 8 MANIGLIE DI RIDIMENSIONAMENTO -->
-                <div class="frame-handle handle-nw" onmousedown="initResizeDirection(event, '${textId}', 'nw')"></div>
-                <div class="frame-handle handle-ne" onmousedown="initResizeDirection(event, '${textId}', 'ne')"></div>
-                <div class="frame-handle handle-sw" onmousedown="initResizeDirection(event, '${textId}', 'sw')"></div>
-                <div class="frame-handle handle-se" onmousedown="initResizeDirection(event, '${textId}', 'se')"></div>
-                <div class="frame-handle handle-n" onmousedown="initResizeDirection(event, '${textId}', 'n')"></div>
-                <div class="frame-handle handle-s" onmousedown="initResizeDirection(event, '${textId}', 's')"></div>
-                <div class="frame-handle handle-w" onmousedown="initResizeDirection(event, '${textId}', 'w')"></div>
-                <div class="frame-handle handle-e" onmousedown="initResizeDirection(event, '${textId}', 'e')"></div>
+                <div class="frame-handle handle-nw" onmousedown="initResizeDirection(event, '${textId}', 'nw')" ontouchstart="initResizeDirection(event, '${textId}', 'nw')"></div>
+                <div class="frame-handle handle-ne" onmousedown="initResizeDirection(event, '${textId}', 'ne')" ontouchstart="initResizeDirection(event, '${textId}', 'ne')"></div>
+                <div class="frame-handle handle-sw" onmousedown="initResizeDirection(event, '${textId}', 'sw')" ontouchstart="initResizeDirection(event, '${textId}', 'sw')"></div>
+                <div class="frame-handle handle-se" onmousedown="initResizeDirection(event, '${textId}', 'se')" ontouchstart="initResizeDirection(event, '${textId}', 'se')"></div>
+                <div class="frame-handle handle-n" onmousedown="initResizeDirection(event, '${textId}', 'n')" ontouchstart="initResizeDirection(event, '${textId}', 'n')"></div>
+                <div class="frame-handle handle-s" onmousedown="initResizeDirection(event, '${textId}', 's')" ontouchstart="initResizeDirection(event, '${textId}', 's')"></div>
+                <div class="frame-handle handle-w" onmousedown="initResizeDirection(event, '${textId}', 'w')" ontouchstart="initResizeDirection(event, '${textId}', 'w')"></div>
+                <div class="frame-handle handle-e" onmousedown="initResizeDirection(event, '${textId}', 'e')" ontouchstart="initResizeDirection(event, '${textId}', 'e')"></div>
             `;
 
             box.addEventListener('click', (e) => {
@@ -1872,21 +1893,21 @@
 
             frame.innerHTML = `
                 <button class="frame-delete-btn" onclick="deleteElement(event, '${frameId}')">✕</button>
-                <div class="frame-handle handle-rotate" onmousedown="initRotate(event, '${frameId}')"></div>
+                <div class="frame-handle handle-rotate" onmousedown="initRotate(event, '${frameId}')" ontouchstart="initRotate(event, '${frameId}')"></div>
                 <div class="image-container" ondrop="dropPhoto(event)" ondragover="allowDrop(event)">
                     ${imageHtml}
                 </div>
                 <input type="text" class="comment-input" value="${comment}" placeholder="Scrivi un commento..." onclick="event.stopPropagation(); selectElement('${frameId}');">
                 
-                <!-- 8 MANIGLIE DI RIDIMENSIONAMENTO PER TUTTI GLI ANGOLI E LATI -->
-                <div class="frame-handle handle-nw" onmousedown="initResizeDirection(event, '${frameId}', 'nw')"></div>
-                <div class="frame-handle handle-ne" onmousedown="initResizeDirection(event, '${frameId}', 'ne')"></div>
-                <div class="frame-handle handle-sw" onmousedown="initResizeDirection(event, '${frameId}', 'sw')"></div>
-                <div class="frame-handle handle-se" onmousedown="initResizeDirection(event, '${frameId}', 'se')"></div>
-                <div class="frame-handle handle-n" onmousedown="initResizeDirection(event, '${frameId}', 'n')"></div>
-                <div class="frame-handle handle-s" onmousedown="initResizeDirection(event, '${frameId}', 's')"></div>
-                <div class="frame-handle handle-w" onmousedown="initResizeDirection(event, '${frameId}', 'w')"></div>
-                <div class="frame-handle handle-e" onmousedown="initResizeDirection(event, '${frameId}', 'e')"></div>
+                <!-- 8 MANIGLIE DI RIDIMENSIONAMENTO PER TUTTI GLI ANGOLI E LATI (MOUSE + TOUCH) -->
+                <div class="frame-handle handle-nw" onmousedown="initResizeDirection(event, '${frameId}', 'nw')" ontouchstart="initResizeDirection(event, '${frameId}', 'nw')"></div>
+                <div class="frame-handle handle-ne" onmousedown="initResizeDirection(event, '${frameId}', 'ne')" ontouchstart="initResizeDirection(event, '${frameId}', 'ne')"></div>
+                <div class="frame-handle handle-sw" onmousedown="initResizeDirection(event, '${frameId}', 'sw')" ontouchstart="initResizeDirection(event, '${frameId}', 'sw')"></div>
+                <div class="frame-handle handle-se" onmousedown="initResizeDirection(event, '${frameId}', 'se')" ontouchstart="initResizeDirection(event, '${frameId}', 'se')"></div>
+                <div class="frame-handle handle-n" onmousedown="initResizeDirection(event, '${frameId}', 'n')" ontouchstart="initResizeDirection(event, '${frameId}', 'n')"></div>
+                <div class="frame-handle handle-s" onmousedown="initResizeDirection(event, '${frameId}', 's')" ontouchstart="initResizeDirection(event, '${frameId}', 's')"></div>
+                <div class="frame-handle handle-w" onmousedown="initResizeDirection(event, '${frameId}', 'w')" ontouchstart="initResizeDirection(event, '${frameId}', 'w')"></div>
+                <div class="frame-handle handle-e" onmousedown="initResizeDirection(event, '${frameId}', 'e')" ontouchstart="initResizeDirection(event, '${frameId}', 'e')"></div>
             `;
 
             frame.addEventListener('click', (e) => {
@@ -1917,23 +1938,33 @@
         function makeImagePannable(frame) {
             const container = frame.querySelector('.image-container');
 
-            container.onmousedown = (e) => {
+            function startPan(e) {
                 const img = container.querySelector('img');
                 if (!img) return;
 
                 e.stopPropagation();
+                if (e.cancelable) e.preventDefault();
                 let isPanning = true;
 
+                const isTouch = e.touches && e.touches.length > 0;
                 let curPanX = parseFloat(frame.dataset.panX || 0);
                 let curPanY = parseFloat(frame.dataset.panY || 0);
 
-                let startX = e.clientX - curPanX;
-                let startY = e.clientY - curPanY;
+                const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+                const clientY = isTouch ? e.touches[0].clientY : e.clientY;
 
-                const onMouseMove = (me) => {
+                let startX = clientX - curPanX;
+                let startY = clientY - curPanY;
+
+                const onMove = (me) => {
                     if (!isPanning) return;
-                    let newPanX = me.clientX - startX;
-                    let newPanY = me.clientY - startY;
+                    if (me.cancelable) me.preventDefault();
+
+                    const moveX = me.touches && me.touches.length > 0 ? me.touches[0].clientX : me.clientX;
+                    const moveY = me.touches && me.touches.length > 0 ? me.touches[0].clientY : me.clientY;
+
+                    let newPanX = moveX - startX;
+                    let newPanY = moveY - startY;
 
                     frame.dataset.panX = newPanX;
                     frame.dataset.panY = newPanY;
@@ -1942,15 +1973,25 @@
                     img.style.transform = `translate(${newPanX}px, ${newPanY}px) scale(${zoom})`;
                 };
 
-                const onMouseUp = () => {
+                const onEnd = () => {
                     isPanning = false;
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onEnd);
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onEnd);
                 };
 
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            };
+                if (isTouch) {
+                    document.addEventListener('touchmove', onMove, { passive: false });
+                    document.addEventListener('touchend', onEnd);
+                } else {
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onEnd);
+                }
+            }
+
+            container.onmousedown = startPan;
+            container.ontouchstart = startPan;
         }
 
         function allowDrop(ev) { ev.preventDefault(); }
@@ -2123,70 +2164,102 @@
 
         function makeDraggablePct(element) {
             let startX = 0, startY = 0;
-            element.onmousedown = dragMouseDown;
 
-            function dragMouseDown(e) {
-                if (e.target.classList.contains('frame-handle') || e.target.classList.contains('comment-input') || e.target.classList.contains('frame-delete-btn') || e.target.closest('.image-container') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            function dragStart(e) {
+                if (e.target.classList.contains('frame-handle') || 
+                    e.target.classList.contains('comment-input') || 
+                    e.target.classList.contains('frame-delete-btn') || 
+                    e.target.closest('.image-container') || 
+                    e.target.tagName === 'INPUT' || 
+                    e.target.tagName === 'TEXTAREA') {
                     return;
                 }
-                e = e || window.event;
-                e.preventDefault();
-                startX = e.clientX;
-                startY = e.clientY;
-                document.onmouseup = closeDragElement;
-                document.onmousemove = elementDrag;
+
+                if (e.cancelable) e.preventDefault();
+                const isTouch = e.touches && e.touches.length > 0;
+
+                startX = isTouch ? e.touches[0].clientX : e.clientX;
+                startY = isTouch ? e.touches[0].clientY : e.clientY;
+
                 selectElement(element.id);
+
+                function elementDrag(me) {
+                    if (me.cancelable) me.preventDefault();
+
+                    const isTouchMove = me.touches && me.touches.length > 0;
+                    const clientX = isTouchMove ? me.touches[0].clientX : me.clientX;
+                    const clientY = isTouchMove ? me.touches[0].clientY : me.clientY;
+
+                    const parent = element.parentElement;
+                    if (!parent) return;
+
+                    const parentW = parent.clientWidth;
+                    const parentH = parent.clientHeight;
+
+                    const dx = clientX - startX;
+                    const dy = clientY - startY;
+
+                    startX = clientX;
+                    startY = clientY;
+
+                    const curLeft = (element.offsetLeft / parentW) * 100;
+                    const curTop = (element.offsetTop / parentH) * 100;
+
+                    const dPctX = (dx / parentW) * 100;
+                    const dPctY = (dy / parentH) * 100;
+
+                    element.style.left = (curLeft + dPctX) + "%";
+                    element.style.top = (curTop + dPctY) + "%";
+                }
+
+                function closeDragElement() {
+                    document.removeEventListener('mousemove', elementDrag);
+                    document.removeEventListener('mouseup', closeDragElement);
+                    document.removeEventListener('touchmove', elementDrag);
+                    document.removeEventListener('touchend', closeDragElement);
+                }
+
+                if (isTouch) {
+                    document.addEventListener('touchmove', elementDrag, { passive: false });
+                    document.addEventListener('touchend', closeDragElement);
+                } else {
+                    document.addEventListener('mousemove', elementDrag);
+                    document.addEventListener('mouseup', closeDragElement);
+                }
             }
 
-            function elementDrag(e) {
-                e = e || window.event;
-                e.preventDefault();
-                const parent = element.parentElement;
-                const parentW = parent.clientWidth;
-                const parentH = parent.clientHeight;
-
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-
-                startX = e.clientX;
-                startY = e.clientY;
-
-                const curLeft = (element.offsetLeft / parentW) * 100;
-                const curTop = (element.offsetTop / parentH) * 100;
-
-                const dPctX = (dx / parentW) * 100;
-                const dPctY = (dy / parentH) * 100;
-
-                element.style.left = (curLeft + dPctX) + "%";
-                element.style.top = (curTop + dPctY) + "%";
-            }
-
-            function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
-            }
+            element.onmousedown = dragStart;
+            element.ontouchstart = dragStart;
         }
 
-        /* RIDIMENSIONAMENTO COMPLETO DA QUALSIASI ANGOLO / LATO (NW, NE, SW, SE, N, S, W, E) */
+        /* RIDIMENSIONAMENTO COMPLETO TOUCH + MOUSE (IPAD & TABLET READY) */
         function initResizeDirection(e, elemId, dir) {
             e.stopPropagation();
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
+
             const elem = document.getElementById(elemId);
             if (!elem) return;
 
             const parent = elem.parentElement;
-            const startX = e.clientX;
-            const startY = e.clientY;
+            const isTouch = e.touches && e.touches.length > 0;
+            const startX = isTouch ? e.touches[0].clientX : e.clientX;
+            const startY = isTouch ? e.touches[0].clientY : e.clientY;
+
             const startW = elem.clientWidth;
             const startH = elem.clientHeight;
             const startLeft = elem.offsetLeft;
             const startTop = elem.offsetTop;
 
             function doDrag(me) {
+                if (me.cancelable) me.preventDefault();
                 const parentW = parent.clientWidth;
                 const parentH = parent.clientHeight;
-                const dx = me.clientX - startX;
-                const dy = me.clientY - startY;
+
+                const clientX = me.touches && me.touches.length > 0 ? me.touches[0].clientX : me.clientX;
+                const clientY = me.touches && me.touches.length > 0 ? me.touches[0].clientY : me.clientY;
+
+                const dx = clientX - startX;
+                const dy = clientY - startY;
 
                 let newW = startW;
                 let newH = startH;
@@ -2223,22 +2296,37 @@
             function stopDrag() {
                 document.removeEventListener('mousemove', doDrag);
                 document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchmove', doDrag);
+                document.removeEventListener('touchend', stopDrag);
             }
 
-            document.addEventListener('mousemove', doDrag);
-            document.addEventListener('mouseup', stopDrag);
+            if (isTouch) {
+                document.addEventListener('touchmove', doDrag, { passive: false });
+                document.addEventListener('touchend', stopDrag);
+            } else {
+                document.addEventListener('mousemove', doDrag);
+                document.addEventListener('mouseup', stopDrag);
+            }
         }
 
         function initRotate(e, elementId) {
             e.stopPropagation();
-            e.preventDefault();
+            if (e.cancelable) e.preventDefault();
+
             const element = document.getElementById(elementId);
+            if (!element) return;
+
             const rect = element.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
+            const isTouch = e.touches && e.touches.length > 0;
 
-            function doRotate(e) {
-                const radians = Math.atan2(e.clientX - centerX, -(e.clientY - centerY));
+            function doRotate(me) {
+                if (me.cancelable) me.preventDefault();
+                const clientX = me.touches && me.touches.length > 0 ? me.touches[0].clientX : me.clientX;
+                const clientY = me.touches && me.touches.length > 0 ? me.touches[0].clientY : me.clientY;
+
+                const radians = Math.atan2(clientX - centerX, -(clientY - centerY));
                 let degrees = Math.round(radians * (180 / Math.PI));
                 element.style.transform = `rotate(${degrees}deg)`;
                 element.dataset.rotation = degrees;
@@ -2247,10 +2335,17 @@
             function stopRotate() {
                 document.removeEventListener('mousemove', doRotate);
                 document.removeEventListener('mouseup', stopRotate);
+                document.removeEventListener('touchmove', doRotate);
+                document.removeEventListener('touchend', stopRotate);
             }
 
-            document.addEventListener('mousemove', doRotate);
-            document.addEventListener('mouseup', stopRotate);
+            if (isTouch) {
+                document.addEventListener('touchmove', doRotate, { passive: false });
+                document.addEventListener('touchend', stopRotate);
+            } else {
+                document.addEventListener('mousemove', doRotate);
+                document.addEventListener('mouseup', stopRotate);
+            }
         }
 
         function collectProjectData() {
